@@ -20,19 +20,25 @@ df2=merge(df2,i)
 
 # UI
 ui <- fluidPage(theme = shinytheme("slate"),
-                titlePanel("Covid-19"), 
-                mainPanel("O banco de dados foi obtido do site https://opendata.ecdc.europa.eu"),
+                titlePanel("Análise comparativa de casos e mortes por Covid-19"), 
+                mainPanel(p("O banco de dados foi obtido pelo site: ",
+                          a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
+                          p("Atualizado em:",df1$dateRep[1])
+                          ),
   column(
-    6,fluidRow(column(6, selectizeInput("All", "Casos", multiple = T,choices = unique(df1$countriesAndTerritories), 
-                                        options = list(maxItems = 5, placeholder = 'Escolha um local:'))),
-               column(6, selectizeInput("All2", "Mortes", multiple = T,choices = unique(df2$countriesAndTerritories), 
-                                        options = list(maxItems = 5, placeholder = 'Escolha um local:'))))
+    6,fluidRow(column(6, selectizeInput("All", "Dados sobre os casos", multiple = T,choices = unique(df1$countriesAndTerritories), 
+                                        options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
+               column(6, selectizeInput("All2", "Dados sobre as mortes", multiple = T,choices = unique(df2$countriesAndTerritories), 
+                                        options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
   ),
   column(
     12,fluidRow(column(12, plotlyOutput('plot'))
     )
-  ) 
+  ),
+  mainPanel(
+    p(strong("Criado por: "), a(href="https://github.com/AlessandroPTSN", "Alessandro Pereira Torres")))
 )
+
 
 
 # Server code
@@ -41,7 +47,7 @@ server <- function(input, output) {
   outVar <- reactive({
     df1 %>%
       filter(countriesAndTerritories %in% input$All) %>%
-      mutate(countriesAndTerritories = paste(countriesAndTerritories, "Casos" ,"Total",x, sep = "_")) %>% 
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "casos." ,"Total:",x, sep = " ")) %>% 
       arrange(Tempo) %>%
       droplevels()
   })
@@ -49,7 +55,7 @@ server <- function(input, output) {
   outVar2 <- reactive({
     df2 %>%
       filter(countriesAndTerritories %in% input$All2) %>%
-      mutate(countriesAndTerritories = paste(countriesAndTerritories, "Mortes","Total",x, sep = "_")) %>% 
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "mortes.","Total:",x, sep = " ")) %>% 
       arrange(Tempo) %>%
       droplevels()
   })
@@ -63,8 +69,8 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories)  %>%
       layout(legend = list(orientation = 'v'))         
   }) 
+
 }
 
 # Return a Shiny app object
 shinyApp(ui = ui, server = server)
-
