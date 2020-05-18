@@ -8,7 +8,7 @@ library(viridis)
 library(readxl)
 library(httr)
 library(stringr)
-library(shinycssloaders)
+
 
 #Datasets
 
