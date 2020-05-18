@@ -55,12 +55,13 @@ cidade = cidade %>% drop_na()
 j=aggregate(cidade$cases, by=list(countriesAndTerritories=cidade$countriesAndTerritories), FUN=max)
 k=aggregate(cidade$deaths, by=list(countriesAndTerritories=cidade$countriesAndTerritories), FUN=max)
 
-
 cidade2=cidade
 
 cidade=merge(cidade,j)
 cidade2=merge(cidade2,k)
 
+df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
+df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
 ###############################################################
 
 
@@ -206,8 +207,7 @@ server <- function(input, output) {
       layout(legend = list(orientation = 'v'))
   })
   
-  
-  
+    
   
   outVara <- reactive({
     cidade %>%
