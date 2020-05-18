@@ -14,7 +14,18 @@ library(stringr)
 
 ###############################################################
 template <- tempfile(fileext = ".xlsx")
-httr::GET(url = "https://mobileapps.saude.gov.br/esus-vepi/files/unAFkcaNDeXajurGB7LChj8SgQYS2ptm/26bf8071c668b2d5307336d13c11fec8_HIST_PAINEL_COVIDBR_20200514.xlsx",
+url <- httr::GET("https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral",
+                 httr::add_headers("X-Parse-Application-Id" =
+                                     "unAFkcaNDeXajurGB7LChj8SgQYS2ptm")) %>%
+  httr::content() %>%
+  '[['("results") %>%
+  '[['(1) %>%
+  '[['("arquivo") %>%
+  '[['("url")
+
+
+
+httr::GET(url,
           write_disk(template) )
 
 my_data <- read_excel(template)
@@ -225,6 +236,5 @@ server <- function(input, output) {
   })
   
 }
-
 # Return a Shiny app object
 shinyApp(ui = ui, server = server)
