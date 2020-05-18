@@ -14,7 +14,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("slate"),
                                                                 options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
                           ),
                           column(
-                            12,fluidRow(column(12, plotlyOutput('plot')%>% withSpinner(color="#0dc5c1"))
+                            12,fluidRow(column(12, plotlyOutput('plot'))
                             )
                           ),
                           mainPanel(
@@ -36,7 +36,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("slate"),
                                                                 options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
                           ),
                           column(
-                            12,fluidRow(column(12, plotlyOutput('plot2')%>% withSpinner(color="#0dc5c1"))
+                            12,fluidRow(column(12, plotlyOutput('plot2'))
                             )
                           ),
                           
