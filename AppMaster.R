@@ -109,7 +109,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("slate"),
     )
   ),
   mainPanel(
-    p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN", "Alessandro Pereira Torres")))
+    p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
 ),
 
 
@@ -133,7 +133,7 @@ tabPanel("Brasil",
          
          
          mainPanel(
-           p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN", "Alessandro Pereira Torres")))
+           p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
 
          ),
 
@@ -166,7 +166,7 @@ tabPanel("Sobre",
                      "possui conhecimento nas áreas de Estatística, Probabilidade, Matemática, Machine Learning, Big Data, Informática e Programação em:"),
                    p("-R",br(),"-Python",br(),"-Markdown e LaTeX",br(),"-Excel",br(),"-C#"),
                    br(),
-                   strong("GitHub: ",a(href="https://github.com/AlessandroPTSN", "https://github.com/AlessandroPTSN")),
+                   strong("GitHub: ",a(href="https://github.com/AlessandroPTSN/Covid-19", "https://github.com/AlessandroPTSN/Covid-19")),
                    br(),
                    strong("Email: alessandroptsn@yahoo.com.br" )
          )
@@ -204,7 +204,7 @@ server <- function(input, output) {
                 type = 'scatter', mode = 'lines', legendgroup = "2",
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'v'))
-  }) 
+  })
   
   
   
