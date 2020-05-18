@@ -60,8 +60,7 @@ cidade2=cidade
 cidade=merge(cidade,j)
 cidade2=merge(cidade2,k)
 
-df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
-df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
+
 ###############################################################
 
 
@@ -88,7 +87,8 @@ mini2=data.frame(countriesAndTerritories=h$countriesAndTerritories,mortalidade=r
 
 df1=merge(df1,mini1)
 df2=merge(df2,mini2)
-
+df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
+df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
 
 # UI
 ui <- navbarPage("Covid-19",theme = shinytheme("slate"),
@@ -174,7 +174,6 @@ tabPanel("Sobre",
          )
 
 )
-
 
 
 
