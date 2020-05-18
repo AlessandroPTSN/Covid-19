@@ -9,7 +9,6 @@ library(readxl)
 library(httr)
 library(stringr)
 
-
 #Datasets
 
 ###############################################################
@@ -30,7 +29,6 @@ httr::GET(url,
 
 my_data <- read_excel(template)
 my_data$data2 = as.Date(my_data$data,"%Y-%m-%d")
-
 
 
 
@@ -88,3 +86,5 @@ mini2=data.frame(countriesAndTerritories=h$countriesAndTerritories,mortalidade=r
 
 df1=merge(df1,mini1)
 df2=merge(df2,mini2)
+df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
+df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
