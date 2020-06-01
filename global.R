@@ -1,16 +1,15 @@
 library(plotly)
 library(dplyr)
 library(shiny)
-library(shinyWidgets)
 library(tidyr)
 library(shinythemes)
-library(viridis)
 library(readxl)
 library(httr)
 library(stringr)
-
-#Datasets
-
+library(DT)
+library(xlsx)
+library(readxl)
+library(openxlsx)
 ###############################################################
 template <- tempfile(fileext = ".xlsx")
 url <- httr::GET("https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral",
@@ -24,10 +23,10 @@ url <- httr::GET("https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/Po
 
 
 
+
 httr::GET(url,
           write_disk(template) )
-
-my_data <- read_excel(template)
+my_data = openxlsx::read.xlsx(template,1)
 my_data$data2 = as.Date(my_data$data,"%Y-%m-%d")
 
 
@@ -35,10 +34,9 @@ my_data$data2 = as.Date(my_data$data,"%Y-%m-%d")
 cidade <- my_data %>%
   select(municipio,data2,populacaoTCU2019,casosAcumulado,obitosAcumulado,estado) %>%
   group_by(estado,municipio,data2) %>%
-  ungroup()
-
+ungroup()
+my_data=0
 cidade = cidade %>% drop_na()
-
 
 
 cidade$countriesAndTerritories = str_c(cidade$municipio," ","(",cidade$estado,")")
@@ -56,8 +54,18 @@ k=aggregate(cidade$deaths, by=list(countriesAndTerritories=cidade$countriesAndTe
 
 cidade2=cidade
 
-cidade=merge(cidade,j)
-cidade2=merge(cidade2,k)
+cidade=left_join(cidade,j,by="countriesAndTerritories")
+cidade2=left_join(cidade2,k,by="countriesAndTerritories")
+j=0;k=0
+tabela2=cidade
+tabela2$y=cidade2$x
+tabela2$Local = tabela2$municipio
+
+tabela2 <- tabela2 %>%
+  select(Local,x,y) %>%
+  group_by(Local) %>%
+  summarise('Total Casos' = max(x),'Total Mortes' = max(y))
+
 
 ###############################################################
 
@@ -65,6 +73,8 @@ cidade2=merge(cidade2,k)
 
 df1 <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
 df1$Data = as.Date(df1$dateRep,"%d/%m/%Y")
+df1=df1 %>%  filter(countriesAndTerritories!="Cases_on_an_international_conveyance_Japan")
+df1$countriesAndTerritories = str_replace_all(df1$countriesAndTerritories,"_"," ")
 df1$Quantidade = df1$cases
 df2=df1
 
@@ -75,16 +85,66 @@ i=aggregate(df1$deaths, by=list(countriesAndTerritories=df1$countriesAndTerritor
 ii=aggregate(df1$popData2018, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
 names(ii)[names(ii) == "x"] <- "o"
 
-df1=merge(df1,h)
-df2=merge(df2,i)
+
+
+df1=left_join(df1,h,by="countriesAndTerritories")
+df2=left_join(df2,i,by="countriesAndTerritories")
+
 
 
 
 mini1=data.frame(countriesAndTerritories=h$countriesAndTerritories,incidencia=round((h$x*100000)/hh$o,1))
 mini2=data.frame(countriesAndTerritories=h$countriesAndTerritories,mortalidade=round((i$x*100000)/ii$o,1))
+h=0;i=0
+hh=0;ii=0
+
+df1=left_join(df1,mini1,by="countriesAndTerritories")
+df2=left_join(df2,mini2,by="countriesAndTerritories")
+mini1=0
+mini2=0
 
 
-df1=merge(df1,mini1)
-df2=merge(df2,mini2)
 df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
 df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
+
+
+
+
+df11=df1
+df22=df1
+
+
+
+tabela = df1[,-c(1,2,3,4,8,9,14,15)]
+tabela$Mortalidade = df2$deaths
+tabela$Locais = tabela$countriesAndTerritories
+
+
+tabela1 <- tabela %>%
+  select(Locais,cases,deaths,Quantidade,Mortalidade) %>%
+  group_by(Locais) %>%
+  summarise('Total Incidência' = sum(Quantidade),'Total Casos' = sum(cases),'Total Mortalidade' = sum(Mortalidade),'Total Mortes' = sum(deaths))
+tabela=0
+
+df11$Quantidade = df11$cases
+
+
+
+df111=df1
+df222=df1
+
+
+df111=  df111 %>%
+  select(countriesAndTerritories,cases,deaths,Data) %>%
+  group_by(countriesAndTerritories) %>%
+  mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
+  
+df222=  df222 %>%
+    select(countriesAndTerritories,cases,deaths,Data) %>%
+    group_by(countriesAndTerritories) %>%
+    mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
+
+df111$Quantidade=df111$cases
+
+df111=ungroup(df111)
+df222=ungroup(df222)
