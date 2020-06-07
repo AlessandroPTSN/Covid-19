@@ -27,7 +27,7 @@ url <- httr::GET("https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/Po
 httr::GET(url,
           write_disk(template) )
 my_data = openxlsx::read.xlsx(template,1)
-my_data$data2 = as.Date(my_data$data,"%Y-%m-%d")
+my_data$data2 = convertToDate(c(my_data$data))
 
 
 
