@@ -73,7 +73,7 @@ navbarMenu("Brasil",
 tabPanel("Acumulativo",
          titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no Brasil"), 
          mainPanel(p("O banco de dados foi obtido pelo site: ",
-                     a(href="https://github.com/liibre/coronabr/blob/master/R/get_corona_minsaude.R", "GitHub")),
+                     a(href="https://brasil.io/dataset/covid19/caso_full/", "Brasil.io")),
                    p("Atualizado em:",max(cidade$data2))
          ),
          column(
