@@ -11,33 +11,17 @@ library(xlsx)
 library(readxl)
 library(openxlsx)
 ###############################################################
-template <- tempfile(fileext = ".xlsx")
-url <- httr::GET("https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral",
-                 httr::add_headers("X-Parse-Application-Id" =
-                                     "unAFkcaNDeXajurGB7LChj8SgQYS2ptm")) %>%
-  httr::content() %>%
-  '[['("results") %>%
-  '[['(1) %>%
-  '[['("arquivo") %>%
-  '[['("url")
 
 
-
-
-httr::GET(url,
-          write_disk(template) )
-my_data = openxlsx::read.xlsx(template, sheet = "Sheet 1")
-if(str_length(my_data$data[1])==10){
-  my_data$data2 = as.Date(my_data$data)
-}else{
-  my_data$data2 = convertToDate(c(my_data$data)) 
-}
-
-
-
+my_data <- read.csv("https://brasil.io/dataset/covid19/caso_full/?format=csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+my_data$municipio = my_data$city
+my_data$estado = my_data$state
+my_data$data2 = as.Date(my_data$date)
+my_data$casosAcumulado = my_data$last_available_confirmed
+my_data$obitosAcumulado = my_data$last_available_deaths
 
 cidade <- my_data %>%
-  select(municipio,data2,populacaoTCU2019,casosAcumulado,obitosAcumulado,estado) %>%
+  select(municipio,data2,casosAcumulado,obitosAcumulado,estado) %>%
   group_by(estado,municipio,data2) %>%
 ungroup()
 my_data=0
@@ -225,7 +209,7 @@ navbarMenu("Brasil",
 tabPanel("Acumulativo",
          titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no Brasil"), 
          mainPanel(p("O banco de dados foi obtido pelo site: ",
-                     a(href="https://github.com/liibre/coronabr/blob/master/R/get_corona_minsaude.R", "GitHub")),
+                     a(href="https://brasil.io/dataset/covid19/caso_full/", "Brasil.io")),
                    p("Atualizado em:",max(cidade$data2))
          ),
          column(
