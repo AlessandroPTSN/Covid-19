@@ -13,7 +13,34 @@ library(openxlsx)
 ###############################################################
 
 
-my_data <- read.csv("https://brasil.io/dataset/covid19/caso_full/?format=csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+#######################################################################
+### teste para verificar se o arquivo em disco tem mais de 24 horas ###
+#######################################################################
+
+# data de criacao dos dados salvos em disco
+
+dataCriacao <- file.info("dados.rda")
+
+# calcula a idade do aruivo em segundos
+
+idade <- difftime(Sys.time(), dataCriacao$mtime, units = "secs")
+
+idade <- as.numeric(gsub("([0-9]+).*$", "\\1", idade))
+
+# condicional: se a idade do arquivo for maior que 86400 segundos, 
+# entao baixa o app baixa os dados novamente
+
+if (idade > 86400) {
+  source("baixarDados.R")
+}
+
+# carrega os dados em disco, atualizados no passo anterior ou nao
+
+load("dados.rda")
+
+
+# 
+
 my_data$municipio = my_data$city
 my_data$estado = my_data$state
 my_data$data2 = as.Date(my_data$date)
