@@ -6,7 +6,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                                      titlePanel("Análise comparativa de casos e mortes diária por Covid-19 no mundo"), 
                                      mainPanel(p("O banco de dados foi obtido pelo site: ",
                                                  a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                                               p("Atualizado em:",df1$dateRep[1])
+                                               p("Atualizado em:",df1$Data[1])
                                      ),
                                      column(
                                        6,fluidRow(column(6, selectizeInput("Alll", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
@@ -14,9 +14,22 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                                                   column(6, selectizeInput("Alll2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
                                                                            options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
                                      ),
-                                     column(
-                                       12,fluidRow(column(12, plotlyOutput('Total'))
-                                       )
+
+                                     checkboxInput(inputId = "smoother", label = strong("Média móvel"), value = FALSE),
+                                     
+                                     conditionalPanel(condition = "input.smoother == true",
+                                                      
+                                                      column(
+                                                        12,fluidRow(column(12, plotlyOutput("Total2"))
+                                                        )
+                                                      ),
+                                     ),
+                                                      conditionalPanel(condition = "input.smoother == false",
+                                                                       
+                                                                       column(
+                                                                         12,fluidRow(column(12, plotlyOutput("Total"))
+                                                                         )
+                                                                       ),
                                      ),
                                      mainPanel(
                                        p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
@@ -26,7 +39,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                 titlePanel("Análise comparativa de incidências e mortalidades por Covid-19 no mundo"), 
                 mainPanel(p("O banco de dados foi obtido pelo site: ",
                           a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                          p("Atualizado em:",df1$dateRep[1])
+                          p("Atualizado em:",df1$Data[1])
                           ),
   column(
     6,fluidRow(column(6, selectizeInput("All", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
@@ -34,10 +47,26 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                column(6, selectizeInput("All2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
                                         options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
   ),
-  column(
-    12,fluidRow(column(12, plotlyOutput('Incidencia'))
-    )
+  
+  
+  checkboxInput(inputId = "smoother2", label = strong("Média móvel"), value = FALSE),
+  
+  conditionalPanel(condition = "input.smoother2 == true",
+                   
+                   column(
+                    12,fluidRow(column(12, plotlyOutput("Incidencia2"))
+                     )
+                   ),
   ),
+  conditionalPanel(condition = "input.smoother2 == false",
+                   
+                   column(
+                     12,fluidRow(column(12, plotlyOutput("Incidencia"))
+                     )
+                   ),
+  ),
+  
+  
   mainPanel(
     p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
 ),
@@ -46,7 +75,7 @@ tabPanel("Acumulativo",
          titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no mundo"), 
          mainPanel(p("O banco de dados foi obtido pelo site: ",
                      a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                   p("Atualizado em:",df1$dateRep[1])
+                   p("Atualizado em:",df1$Data[1])
          ),
          column(
            6,fluidRow(column(6, selectizeInput("Allll", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
