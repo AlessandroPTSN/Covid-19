@@ -1,5 +1,38 @@
 # Server code
 server <- function(input, output) {
+
+  
+#####################################
+  outVarrB <- reactive({
+    df11 %>%
+      filter(countriesAndTerritories %in% input$Alll) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "casos", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  outVarr2B <- reactive({
+    df22 %>%
+      filter(countriesAndTerritories %in% input$Alll2) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "mortes", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  output$Total2 <- renderPlotly({
+    plot_ly(data=outVarrB(), x=~Data,  y = ~Quantidade2,
+            type = 'scatter', mode = 'lines', legendgroup = "1",
+            color = ~countriesAndTerritories,colors = "viridis") %>%
+      add_trace(data=outVarr2B(), x=~Data,  y = ~deaths2,
+                type = 'scatter', mode = 'lines', legendgroup = "2",
+                color = ~countriesAndTerritories,colors = "viridis")  %>%
+      layout(legend = list(orientation = 'h',y = 100, x = 0))
+  })
+#####################################  
+  
+  
+  
+
   
   
   outVarr <- reactive({
@@ -27,6 +60,43 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'h',y = 100, x = 0))
   })
+
+  
+  
+  
+  #####################################
+  
+  outVark <- reactive({
+    df1 %>%
+      filter(countriesAndTerritories %in% input$All) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "casos", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  outVar2k <- reactive({
+    df2 %>%
+      filter(countriesAndTerritories %in% input$All2) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "mortes", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  output$Incidencia2 <- renderPlotly({
+    plot_ly(data=outVark(), x=~Data,  y = ~Quantidade2,
+            type = 'scatter', mode = 'lines', legendgroup = "1",
+            color = ~countriesAndTerritories,colors = "viridis") %>%
+      add_trace(data=outVar2k(), x=~Data,  y = ~deaths2,
+                type = 'scatter', mode = 'lines', legendgroup = "2",
+                color = ~countriesAndTerritories,colors = "viridis")  %>%
+      layout(legend = list(orientation = 'h',y = 100, x = 0))
+  })
+  ##########################################
+  
+  
+  
+  
+
   
   outVar <- reactive({
     df1 %>%
