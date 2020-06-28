@@ -10,6 +10,7 @@ library(DT)
 library(xlsx)
 library(readxl)
 library(openxlsx)
+library(zoo)
 ###############################################################
 
 
@@ -94,15 +95,18 @@ df1$countriesAndTerritories = str_replace_all(df1$countriesAndTerritories,"_"," 
 df1$Quantidade = df1$cases
 df2=df1
 
+########################################
+#criando incidencia e mortalidade
 h=aggregate(df1$cases, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=sum)
-hh=aggregate(df1$popData2018, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
+hh=aggregate(df1[,10], by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
 names(hh)[names(hh) == "x"] <- "o"
 i=aggregate(df1$deaths, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=sum)
-ii=aggregate(df1$popData2018, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
+ii=aggregate(df1[,10], by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
 names(ii)[names(ii) == "x"] <- "o"
 
 
-
+########################################
+#criando incidencia e mortalidade soma total
 df1=left_join(df1,h,by="countriesAndTerritories")
 df2=left_join(df2,i,by="countriesAndTerritories")
 
@@ -119,9 +123,11 @@ df2=left_join(df2,mini2,by="countriesAndTerritories")
 mini1=0
 mini2=0
 
+########################################
+#criando incidencia e mortalidade diaria
+df1$Quantidade = round((df1$Quantidade*100000)/df1[,10],1)
+df2$deaths = round((df2$deaths*100000)/df1[,10],1)
 
-df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
-df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
 
 
 
@@ -129,6 +135,10 @@ df11=df1
 df22=df1
 
 
+
+
+#####################################################################################
+#Tabela Mundo
 
 tabela = df1[,-c(1,2,3,4,8,9,14,15)]
 tabela$Mortalidade = df2$deaths
@@ -143,6 +153,11 @@ tabela=0
 
 df11$Quantidade = df11$cases
 
+
+
+#################################################################################
+
+#Acumulado
 df111=df1
 df222=df1
 
@@ -161,6 +176,56 @@ df111$Quantidade=df111$cases
 
 df111=ungroup(df111)
 df222=ungroup(df222)
+
+##############################################################################################
+#removendo 6 primeiros dias para fazer media movel de 7 dias
+hplm=aggregate(Data ~ countriesAndTerritories, df22, function(x) order(unique(x)))
+ffffddff=unlist(hplm$Data)
+
+
+#Media Movel 
+deaths2=rollmean(df22$deaths, 7, align = "right")
+deaths3 = cbind(df22$deaths, c(deaths2,0,0,0,0,0,0))
+df22$deaths2 = deaths3[,2]
+
+Quantidade2=rollmean(df11$Quantidade, 7, align = "right")
+Quantidade3 = cbind(df11$Quantidade, c(Quantidade2,0,0,0,0,0,0))
+df11$Quantidade2 = Quantidade3[,2]
+
+
+df11$order=ffffddff
+df22$order=ffffddff
+
+
+df11=df11[df11$order!=1,];df22=df22[df22$order!=1,]
+df11=df11[df11$order!=2,];df22=df22[df22$order!=2,]
+df11=df11[df11$order!=3,];df22=df22[df22$order!=3,]
+df11=df11[df11$order!=4,];df22=df22[df22$order!=4,]
+df11=df11[df11$order!=5,];df22=df22[df22$order!=5,]
+df11=df11[df11$order!=6,];df22=df22[df22$order!=6,]
+
+
+#Media Movel 2
+deaths22=rollmean(df2$deaths, 7, align = "right")
+deaths33 = cbind(df2$deaths, c(deaths22,0,0,0,0,0,0))
+df2$deaths2 = deaths33[,2]
+
+Quantidade22=rollmean(df1$Quantidade, 7, align = "right")
+Quantidade33 = cbind(df1$Quantidade, c(Quantidade22,0,0,0,0,0,0))
+df1$Quantidade2 = Quantidade33[,2]
+
+
+df1$order=ffffddff
+df2$order=ffffddff
+
+
+df1=df1[df1$order!=1,];df2=df2[df2$order!=1,]
+df1=df1[df1$order!=2,];df2=df2[df2$order!=2,]
+df1=df1[df1$order!=3,];df2=df2[df2$order!=3,]
+df1=df1[df1$order!=4,];df2=df2[df2$order!=4,]
+df1=df1[df1$order!=5,];df2=df2[df2$order!=5,]
+df1=df1[df1$order!=6,];df2=df2[df2$order!=6,]
+               
 # UI
 ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                  
@@ -169,7 +234,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                                      titlePanel("Análise comparativa de casos e mortes diária por Covid-19 no mundo"), 
                                      mainPanel(p("O banco de dados foi obtido pelo site: ",
                                                  a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                                               p("Atualizado em:",df1$dateRep[1])
+                                               p("Atualizado em:",df1$Data[1])
                                      ),
                                      column(
                                        6,fluidRow(column(6, selectizeInput("Alll", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
@@ -177,9 +242,22 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                                                   column(6, selectizeInput("Alll2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
                                                                            options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
                                      ),
-                                     column(
-                                       12,fluidRow(column(12, plotlyOutput('Total'))
-                                       )
+
+                                     checkboxInput(inputId = "smoother", label = strong("Média móvel"), value = FALSE),
+                                     
+                                     conditionalPanel(condition = "input.smoother == true",
+                                                      
+                                                      column(
+                                                        12,fluidRow(column(12, plotlyOutput("Total2"))
+                                                        )
+                                                      ),
+                                     ),
+                                                      conditionalPanel(condition = "input.smoother == false",
+                                                                       
+                                                                       column(
+                                                                         12,fluidRow(column(12, plotlyOutput("Total"))
+                                                                         )
+                                                                       ),
                                      ),
                                      mainPanel(
                                        p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
@@ -189,7 +267,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                 titlePanel("Análise comparativa de incidências e mortalidades por Covid-19 no mundo"), 
                 mainPanel(p("O banco de dados foi obtido pelo site: ",
                           a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                          p("Atualizado em:",df1$dateRep[1])
+                          p("Atualizado em:",df1$Data[1])
                           ),
   column(
     6,fluidRow(column(6, selectizeInput("All", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
@@ -197,10 +275,26 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                column(6, selectizeInput("All2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
                                         options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
   ),
-  column(
-    12,fluidRow(column(12, plotlyOutput('Incidencia'))
-    )
+  
+  
+  checkboxInput(inputId = "smoother2", label = strong("Média móvel"), value = FALSE),
+  
+  conditionalPanel(condition = "input.smoother2 == true",
+                   
+                   column(
+                    12,fluidRow(column(12, plotlyOutput("Incidencia2"))
+                     )
+                   ),
   ),
+  conditionalPanel(condition = "input.smoother2 == false",
+                   
+                   column(
+                     12,fluidRow(column(12, plotlyOutput("Incidencia"))
+                     )
+                   ),
+  ),
+  
+  
   mainPanel(
     p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
 ),
@@ -209,7 +303,7 @@ tabPanel("Acumulativo",
          titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no mundo"), 
          mainPanel(p("O banco de dados foi obtido pelo site: ",
                      a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                   p("Atualizado em:",df1$dateRep[1])
+                   p("Atualizado em:",df1$Data[1])
          ),
          column(
            6,fluidRow(column(6, selectizeInput("Allll", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
@@ -298,6 +392,39 @@ tabPanel("Dados",
 
 # Server code
 server <- function(input, output) {
+
+  
+#####################################
+  outVarrB <- reactive({
+    df11 %>%
+      filter(countriesAndTerritories %in% input$Alll) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "casos", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  outVarr2B <- reactive({
+    df22 %>%
+      filter(countriesAndTerritories %in% input$Alll2) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "mortes", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  output$Total2 <- renderPlotly({
+    plot_ly(data=outVarrB(), x=~Data,  y = ~Quantidade2,
+            type = 'scatter', mode = 'lines', legendgroup = "1",
+            color = ~countriesAndTerritories,colors = "viridis") %>%
+      add_trace(data=outVarr2B(), x=~Data,  y = ~deaths2,
+                type = 'scatter', mode = 'lines', legendgroup = "2",
+                color = ~countriesAndTerritories,colors = "viridis")  %>%
+      layout(legend = list(orientation = 'h',y = 100, x = 0))
+  })
+#####################################  
+  
+  
+  
+
   
   
   outVarr <- reactive({
@@ -325,6 +452,43 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'h',y = 100, x = 0))
   })
+
+  
+  
+  
+  #####################################
+  
+  outVark <- reactive({
+    df1 %>%
+      filter(countriesAndTerritories %in% input$All) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "casos", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  outVar2k <- reactive({
+    df2 %>%
+      filter(countriesAndTerritories %in% input$All2) %>%
+      mutate(countriesAndTerritories = paste(countriesAndTerritories, "mortes", sep = " ")) %>% 
+      arrange(Data) %>%
+      droplevels()
+  })
+  
+  output$Incidencia2 <- renderPlotly({
+    plot_ly(data=outVark(), x=~Data,  y = ~Quantidade2,
+            type = 'scatter', mode = 'lines', legendgroup = "1",
+            color = ~countriesAndTerritories,colors = "viridis") %>%
+      add_trace(data=outVar2k(), x=~Data,  y = ~deaths2,
+                type = 'scatter', mode = 'lines', legendgroup = "2",
+                color = ~countriesAndTerritories,colors = "viridis")  %>%
+      layout(legend = list(orientation = 'h',y = 100, x = 0))
+  })
+  ##########################################
+  
+  
+  
+  
+
   
   outVar <- reactive({
     df1 %>%
