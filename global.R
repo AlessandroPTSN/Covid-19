@@ -94,15 +94,18 @@ df1$countriesAndTerritories = str_replace_all(df1$countriesAndTerritories,"_"," 
 df1$Quantidade = df1$cases
 df2=df1
 
+########################################
+#criando incidencia e mortalidade
 h=aggregate(df1$cases, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=sum)
-hh=aggregate(df1$popData2018, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
+hh=aggregate(df1[,10], by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
 names(hh)[names(hh) == "x"] <- "o"
 i=aggregate(df1$deaths, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=sum)
-ii=aggregate(df1$popData2018, by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
+ii=aggregate(df1[,10], by=list(countriesAndTerritories=df1$countriesAndTerritories), FUN=mean)
 names(ii)[names(ii) == "x"] <- "o"
 
 
-
+########################################
+#criando incidencia e mortalidade soma total
 df1=left_join(df1,h,by="countriesAndTerritories")
 df2=left_join(df2,i,by="countriesAndTerritories")
 
@@ -119,9 +122,10 @@ df2=left_join(df2,mini2,by="countriesAndTerritories")
 mini1=0
 mini2=0
 
-
-df1$Quantidade = round((df1$Quantidade*100000)/df1$popData2018,1)
-df2$deaths = round((df2$deaths*100000)/df2$popData2018,1)
+########################################
+#criando incidencia e mortalidade diaria
+df1$Quantidade = round((df1$Quantidade*100000)/df1[,10],1)
+df2$deaths = round((df2$deaths*100000)/df1[,10],1)
 
 
 
@@ -130,6 +134,10 @@ df11=df1
 df22=df1
 
 
+
+
+#####################################################################################
+#Tabela Mundo
 
 tabela = df1[,-c(1,2,3,4,8,9,14,15)]
 tabela$Mortalidade = df2$deaths
@@ -146,6 +154,9 @@ df11$Quantidade = df11$cases
 
 
 
+#################################################################################
+
+#Acumulado
 df111=df1
 df222=df1
 
@@ -164,3 +175,52 @@ df111$Quantidade=df111$cases
 
 df111=ungroup(df111)
 df222=ungroup(df222)
+
+##############################################################################################
+#removendo 6 primeiros dias para fazer media movel de 7 dias
+hplm=aggregate(Data ~ countriesAndTerritories, df22, function(x) order(unique(x)))
+ffffddff=unlist(hplm$Data)
+
+
+#Media Movel 
+deaths2=rollmean(df22$deaths, 7, align = "right")
+deaths3 = cbind(df22$deaths, c(deaths2,0,0,0,0,0,0))
+df22$deaths2 = deaths3[,2]
+
+Quantidade2=rollmean(df11$Quantidade, 7, align = "right")
+Quantidade3 = cbind(df11$Quantidade, c(Quantidade2,0,0,0,0,0,0))
+df11$Quantidade2 = Quantidade3[,2]
+
+
+df11$order=ffffddff
+df22$order=ffffddff
+
+
+df11=df11[df11$order!=1,];df22=df22[df22$order!=1,]
+df11=df11[df11$order!=2,];df22=df22[df22$order!=2,]
+df11=df11[df11$order!=3,];df22=df22[df22$order!=3,]
+df11=df11[df11$order!=4,];df22=df22[df22$order!=4,]
+df11=df11[df11$order!=5,];df22=df22[df22$order!=5,]
+df11=df11[df11$order!=6,];df22=df22[df22$order!=6,]
+
+
+#Media Movel 2
+deaths22=rollmean(df2$deaths, 7, align = "right")
+deaths33 = cbind(df2$deaths, c(deaths22,0,0,0,0,0,0))
+df2$deaths2 = deaths33[,2]
+
+Quantidade22=rollmean(df1$Quantidade, 7, align = "right")
+Quantidade33 = cbind(df1$Quantidade, c(Quantidade22,0,0,0,0,0,0))
+df1$Quantidade2 = Quantidade33[,2]
+
+
+df1$order=ffffddff
+df2$order=ffffddff
+
+
+df1=df1[df1$order!=1,];df2=df2[df2$order!=1,]
+df1=df1[df1$order!=2,];df2=df2[df2$order!=2,]
+df1=df1[df1$order!=3,];df2=df2[df2$order!=3,]
+df1=df1[df1$order!=4,];df2=df2[df2$order!=4,]
+df1=df1[df1$order!=5,];df2=df2[df2$order!=5,]
+df1=df1[df1$order!=6,];df2=df2[df2$order!=6,]
