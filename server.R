@@ -20,7 +20,7 @@ server <- function(input, output) {
   })
   
   output$Total2 <- renderPlotly({
-    plot_ly(data=outVarrB(), x=~Data,  y = ~Quantidade2,
+    plot_ly(data=outVarrB(), x=~Data,  y = ~QuantidadeMedia,
             type = 'scatter', mode = 'lines', legendgroup = "1",
             color = ~countriesAndTerritories,colors = "viridis") %>%
       add_trace(data=outVarr2B(), x=~Data,  y = ~deaths2,
@@ -83,7 +83,7 @@ server <- function(input, output) {
   })
   
   output$Incidencia2 <- renderPlotly({
-    plot_ly(data=outVark(), x=~Data,  y = ~Quantidade2,
+    plot_ly(data=outVark(), x=~Data,  y = ~QuantidadeMedia,
             type = 'scatter', mode = 'lines', legendgroup = "1",
             color = ~countriesAndTerritories,colors = "viridis") %>%
       add_trace(data=outVar2k(), x=~Data,  y = ~deaths2,
