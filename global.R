@@ -187,9 +187,9 @@ deaths2=rollmean(df22$deaths, 7, align = "right")
 deaths3 = cbind(df22$deaths, c(deaths2,0,0,0,0,0,0))
 df22$deaths2 = deaths3[,2]
 
-Quantidade2=rollmean(df11$Quantidade, 7, align = "right")
-Quantidade3 = cbind(df11$Quantidade, c(Quantidade2,0,0,0,0,0,0))
-df11$Quantidade2 = Quantidade3[,2]
+QuantidadeMedia=rollmean(df11$Quantidade, 7, align = "right")
+Quantidade3 = cbind(df11$Quantidade, c(QuantidadeMedia,0,0,0,0,0,0))
+df11$QuantidadeMedia = Quantidade3[,2]
 
 
 df11$order=ffffddff
@@ -209,9 +209,9 @@ deaths22=rollmean(df2$deaths, 7, align = "right")
 deaths33 = cbind(df2$deaths, c(deaths22,0,0,0,0,0,0))
 df2$deaths2 = deaths33[,2]
 
-Quantidade22=rollmean(df1$Quantidade, 7, align = "right")
-Quantidade33 = cbind(df1$Quantidade, c(Quantidade22,0,0,0,0,0,0))
-df1$Quantidade2 = Quantidade33[,2]
+QuantidadeMedia2=rollmean(df1$Quantidade, 7, align = "right")
+Quantidade33 = cbind(df1$Quantidade, c(QuantidadeMedia2,0,0,0,0,0,0))
+df1$QuantidadeMedia = Quantidade33[,2]
 
 
 df1$order=ffffddff
