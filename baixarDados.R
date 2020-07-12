@@ -3,7 +3,8 @@
 
 # dados nacionais
 
-my_data <- read.csv("https://brasil.io/dataset/covid19/caso_full/?format=csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+#my_data <- read.csv("https://brasil.io/dataset/covid19/caso_full/?format=csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+my_data <- read.csv("https://raw.githubusercontent.com/AlessandroPTSN/Covid-19/master/my_data2.csv")
 
 # dados internacionais
 
