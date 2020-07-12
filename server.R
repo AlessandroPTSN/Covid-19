@@ -1,8 +1,8 @@
 # Server code
 server <- function(input, output) {
-
   
-#####################################
+  
+  #####################################
   outVarrB <- reactive({
     df11 %>%
       filter(countriesAndTerritories %in% input$Alll) %>%
@@ -28,11 +28,11 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'h',y = 100, x = 0))
   })
-#####################################  
+  #####################################  
   
   
   
-
+  
   
   
   outVarr <- reactive({
@@ -50,7 +50,7 @@ server <- function(input, output) {
       arrange(Data) %>%
       droplevels()
   })
-
+  
   output$Total <- renderPlotly({
     plot_ly(data=outVarr(), x=~Data,  y = ~Quantidade,
             type = 'scatter', mode = 'lines', legendgroup = "1",
@@ -60,7 +60,7 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'h',y = 100, x = 0))
   })
-
+  
   
   
   
@@ -96,7 +96,7 @@ server <- function(input, output) {
   
   
   
-
+  
   
   outVar <- reactive({
     df1 %>%
@@ -200,11 +200,11 @@ server <- function(input, output) {
         'color': '#fff'
         }); 
         }")
-
+      
     ))
   })
   
-
+  
   
 }
 # Return a Shiny app object
