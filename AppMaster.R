@@ -45,14 +45,14 @@ load("dados.rda")
 
 my_data$municipio = my_data$city
 my_data$estado = my_data$state
-my_data$data2 = as.Date(my_data$date)
+my_data$data2 = as.Date(my_data$date, format="%Y-%m-%d")
 my_data$casosAcumulado = my_data$last_available_confirmed
 my_data$obitosAcumulado = my_data$last_available_deaths
 
 cidade <- my_data %>%
   select(municipio,data2,casosAcumulado,obitosAcumulado,estado) %>%
   group_by(estado,municipio,data2) %>%
-ungroup()
+  ungroup()
 my_data=0
 cidade = cidade %>% drop_na()
 
@@ -138,9 +138,9 @@ df22=df1
 
 
 #####################################################################################
-#Tabela Mundo
+#Tabela Mundo countriesAndTerritories,cases,deaths,Quantidade,Mortalidade
 
-tabela = df1[,-c(1,2,3,4,8,9,14,15)]
+tabela = df1[,-c(1,2,3,4,8,9,10,11,12,13,15,16)]
 tabela$Mortalidade = df2$deaths
 tabela$Locais = tabela$countriesAndTerritories
 
@@ -166,11 +166,11 @@ df111=  df111 %>%
   select(countriesAndTerritories,cases,deaths,Data) %>%
   group_by(countriesAndTerritories) %>%
   mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
-  
+
 df222=  df222 %>%
-    select(countriesAndTerritories,cases,deaths,Data) %>%
-    group_by(countriesAndTerritories) %>%
-    mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
+  select(countriesAndTerritories,cases,deaths,Data) %>%
+  group_by(countriesAndTerritories) %>%
+  mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
 
 df111$Quantidade=df111$cases
 
@@ -179,7 +179,7 @@ df222=ungroup(df222)
 
 ##############################################################################################
 #removendo 6 primeiros dias para fazer media movel de 7 dias
-hplm=aggregate(Data ~ countriesAndTerritories, df22, function(x) order(unique(x)))
+hplm=aggregate(Data ~ countriesAndTerritories, df22, function(x){order(unique(x))})
 ffffddff=unlist(hplm$Data)
 
 
@@ -225,10 +225,10 @@ df1=df1[df1$order!=3,];df2=df2[df2$order!=3,]
 df1=df1[df1$order!=4,];df2=df2[df2$order!=4,]
 df1=df1[df1$order!=5,];df2=df2[df2$order!=5,]
 df1=df1[df1$order!=6,];df2=df2[df2$order!=6,]
-               
+
+
 # UI
 ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
-                 
                  navbarMenu("Mundo",
                             tabPanel("Diária", 
                                      titlePanel("Análise comparativa de casos e mortes diária por Covid-19 no mundo"), 
@@ -242,7 +242,7 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                                                   column(6, selectizeInput("Alll2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
                                                                            options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
                                      ),
-
+                                     
                                      checkboxInput(inputId = "smoother", label = strong("Média móvel"), value = FALSE),
                                      
                                      conditionalPanel(condition = "input.smoother == true",
@@ -250,139 +250,139 @@ ui <- navbarPage("Covid-19",theme = shinytheme("darkly"),
                                                       column(
                                                         12,fluidRow(column(12, plotlyOutput("Total2"))
                                                         )
-                                                      ),
+                                                      )
                                      ),
-                                                      conditionalPanel(condition = "input.smoother == false",
-                                                                       
-                                                                       column(
-                                                                         12,fluidRow(column(12, plotlyOutput("Total"))
-                                                                         )
-                                                                       ),
+                                     conditionalPanel(condition = "input.smoother == false",
+                                                      
+                                                      column(
+                                                        12,fluidRow(column(12, plotlyOutput("Total"))
+                                                        )
+                                                      )
                                      ),
                                      mainPanel(
                                        p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
                             ),
+                            
+                            tabPanel("Incidência", 
+                                     titlePanel("Análise comparativa de incidências e mortalidades por Covid-19 no mundo"), 
+                                     mainPanel(p("O banco de dados foi obtido pelo site: ",
+                                                 a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
+                                               p("Atualizado em:",df1$Data[1])
+                                     ),
+                                     column(
+                                       6,fluidRow(column(6, selectizeInput("All", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
+                                                                           options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
+                                                  column(6, selectizeInput("All2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
+                                                                           options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
+                                     ),
+                                     
+                                     
+                                     checkboxInput(inputId = "smoother2", label = strong("Média móvel"), value = FALSE),
+                                     
+                                     conditionalPanel(condition = "input.smoother2 == true",
+                                                      
+                                                      column(
+                                                        12,fluidRow(column(12, plotlyOutput("Incidencia2"))
+                                                        )
+                                                      )
+                                     ),
+                                     conditionalPanel(condition = "input.smoother2 == false",
+                                                      
+                                                      column(
+                                                        12,fluidRow(column(12, plotlyOutput("Incidencia"))
+                                                        )
+                                                      )
+                                     ),
+                                     
+                                     
+                                     mainPanel(
+                                       p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
+                            ),
+                            
+                            tabPanel("Acumulativo", 
+                                     titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no mundo"), 
+                                     mainPanel(p("O banco de dados foi obtido pelo site: ",
+                                                 a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
+                                               p("Atualizado em:",df1$Data[1])
+                                     ),
+                                     column(
+                                       6,fluidRow(column(6, selectizeInput("Allll", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
+                                                                           options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
+                                                  column(6, selectizeInput("Allll2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
+                                                                           options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
+                                     ),
+                                     column(
+                                       12,fluidRow(column(12, plotlyOutput('Acumulado'))
+                                       )
+                                     ),
+                                     mainPanel(
+                                       p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
+                            ),
+                            
+                            tabPanel("Dados",
+                                     DT::dataTableOutput("table")
+                                     
+                            )
+                            
+                 ),
                  
-                 tabPanel("Incidência", 
-                titlePanel("Análise comparativa de incidências e mortalidades por Covid-19 no mundo"), 
-                mainPanel(p("O banco de dados foi obtido pelo site: ",
-                          a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                          p("Atualizado em:",df1$Data[1])
-                          ),
-  column(
-    6,fluidRow(column(6, selectizeInput("All", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
-                                        options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
-               column(6, selectizeInput("All2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
-                                        options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
-  ),
-  
-  
-  checkboxInput(inputId = "smoother2", label = strong("Média móvel"), value = FALSE),
-  
-  conditionalPanel(condition = "input.smoother2 == true",
-                   
-                   column(
-                    12,fluidRow(column(12, plotlyOutput("Incidencia2"))
-                     )
-                   ),
-  ),
-  conditionalPanel(condition = "input.smoother2 == false",
-                   
-                   column(
-                     12,fluidRow(column(12, plotlyOutput("Incidencia"))
-                     )
-                   ),
-  ),
-  
-  
-  mainPanel(
-    p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
-),
-
-tabPanel("Acumulativo", 
-         titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no mundo"), 
-         mainPanel(p("O banco de dados foi obtido pelo site: ",
-                     a(href="https://opendata.ecdc.europa.eu", "European Centre for Disease Prevention and Control")),
-                   p("Atualizado em:",df1$Data[1])
-         ),
-         column(
-           6,fluidRow(column(6, selectizeInput("Allll", "Dados sobre os casos diários", multiple = T,choices = unique(df1$countriesAndTerritories), 
-                                               options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
-                      column(6, selectizeInput("Allll2", "Dados sobre as mortes diárias", multiple = T,choices = unique(df2$countriesAndTerritories), 
-                                               options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
-         ),
-         column(
-           12,fluidRow(column(12, plotlyOutput('Acumulado'))
-           )
-         ),
-         mainPanel(
-           p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
-),
-
-tabPanel("Dados",
-         DT::dataTableOutput("table"),
-
-       )
-
-),
-
-navbarMenu("Brasil",
-tabPanel("Acumulativo",
-         titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no Brasil"), 
-         mainPanel(p("O banco de dados foi obtido pelo site: ",
-                     a(href="https://brasil.io/dataset/covid19/caso_full/", "Brasil.io")),
-                   p("Atualizado em:",max(cidade$data2))
-         ),
-         column(
-           6,fluidRow(column(6, selectizeInput("All11", "Dados sobre os casos acumulados", multiple = T,choices = unique(cidade$countriesAndTerritories), 
-                                               options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
-                      column(6, selectizeInput("All22", "Dados sobre as mortes acumuladas", multiple = T,choices = unique(cidade2$countriesAndTerritories), 
-                                               options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
-         ),
-         column(
-           12,fluidRow(column(12, plotlyOutput('plot2'))
-           )
-         ),
-         
-         
-         mainPanel(
-           p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
-         ),
-tabPanel("Dados",
-         DT::dataTableOutput("table2")
-)
-),
-
-
-
-
-
-           tabPanel("Sobre",
-                    
-                    titlePanel("Site"),
-                    p("COVID-19 é uma doença infeciosa causada pelo coronavírus, seus principais sintomas são febre, tosse seca e cansaço.",br(), 
-                      "O site tem como objetivo mostrar as pessoas o avanço do Covid-19 ao decorrer dos dias, através de tabelas e gráficos interativos suportados pelo",
-                      a(href="https://shiny.rstudio.com", "Shiny,"),
-                      "um dos vários pacotes do ",
-                      a(href="https://www.r-project.org", "R"),br(),br(),p("Cálculo da incidência : (casos * 100000)/(População)"),
-                      p("Cálculo da mortalidade : (mortes * 100000)/(População)")),
-
-                    
-                    titlePanel("Criador"),
-                    strong("Alessandro Pereira Torres De Sá Neto"),
-                    br(),
-                    mainPanel(p("Graduando em estatística na ",
-                                a(href="https://ufrn.br", "UFRN"),
-                                " com experiência em consultoria estatística no",
-                                a(href="http://lea.estatistica.ccet.ufrn.br", "LEA"),
-                                "e criação de jogos digitais pelo ",a(href="https://imd.ufrn.br/portal/", "IMD,"),
-                                "possui conhecimento nas áreas de Estatística, Probabilidade, Matemática, Machine Learning, Big Data, Informática e Programação em:"),
-                              p("-R",br(),"-Python",br(),"-Markdown e LaTeX",br(),"-Excel",br(),"-C++ e C#"),
-                              br(),
-                              strong("GitHub: ",a(href="https://github.com/AlessandroPTSN/Covid-19", "https://github.com/AlessandroPTSN/Covid-19")),
-                              br(),
-                              strong("Email: alessandroptsn@yahoo.com.br" ))
-           )
+                 navbarMenu("Brasil",
+                            tabPanel("Acumulativo",
+                                     titlePanel("Análise comparativa de casos e mortes acumuladas por Covid-19 no Brasil"), 
+                                     mainPanel(p("O banco de dados foi obtido pelo site: ",
+                                                 a(href="https://brasil.io/dataset/covid19/caso_full/", "Brasil.io")),
+                                               p("Atualizado em:",max(cidade$data2))
+                                     ),
+                                     column(
+                                       6,fluidRow(column(6, selectizeInput("All11", "Dados sobre os casos acumulados", multiple = T,choices = unique(cidade$countriesAndTerritories), 
+                                                                           options = list(maxItems = 5, placeholder = 'Escolha os locais:'))),
+                                                  column(6, selectizeInput("All22", "Dados sobre as mortes acumuladas", multiple = T,choices = unique(cidade2$countriesAndTerritories), 
+                                                                           options = list(maxItems = 5, placeholder = 'Escolha os locais:'))))
+                                     ),
+                                     column(
+                                       12,fluidRow(column(12, plotlyOutput('plot2'))
+                                       )
+                                     ),
+                                     
+                                     
+                                     mainPanel(
+                                       p(strong("Observação: "),"Passe o cursor em cima do gráfico para visualizar melhor os dados",br(),strong("Criado por: "), a(href="https://github.com/AlessandroPTSN/Covid-19", "Alessandro Pereira Torres")))
+                            ),
+                            tabPanel("Dados",
+                                     DT::dataTableOutput("table2")
+                            )
+                 ),
+                 
+                 
+                 
+                 
+                 
+                 tabPanel("Sobre",
+                          
+                          titlePanel("Site"),
+                          p("COVID-19 é uma doença infeciosa causada pelo coronavírus, seus principais sintomas são febre, tosse seca e cansaço.",br(), 
+                            "O site tem como objetivo mostrar as pessoas o avanço do Covid-19 ao decorrer dos dias, através de tabelas e gráficos interativos suportados pelo",
+                            a(href="https://shiny.rstudio.com", "Shiny,"),
+                            "um dos vários pacotes do ",
+                            a(href="https://www.r-project.org", "R"),br(),br(),p("Cálculo da incidência : (casos * 100000)/(População)"),
+                            p("Cálculo da mortalidade : (mortes * 100000)/(População)")),
+                          
+                          
+                          titlePanel("Criador"),
+                          strong("Alessandro Pereira Torres De Sá Neto"),
+                          br(),
+                          mainPanel(p("Graduando em estatística na ",
+                                      a(href="https://ufrn.br", "UFRN"),
+                                      " com experiência em consultoria estatística no",
+                                      a(href="http://lea.estatistica.ccet.ufrn.br", "LEA"),
+                                      "e criação de jogos digitais pelo ",a(href="https://imd.ufrn.br/portal/", "IMD,"),
+                                      "possui conhecimento nas áreas de Estatística, Probabilidade, Matemática, Machine Learning, Big Data, Informática e Programação em:"),
+                                    p("-R",br(),"-Python",br(),"-Markdown e LaTeX",br(),"-Excel",br(),"-C++ e C#"),
+                                    br(),
+                                    strong("GitHub: ",a(href="https://github.com/AlessandroPTSN/Covid-19", "https://github.com/AlessandroPTSN/Covid-19")),
+                                    br(),
+                                    strong("Email: alessandroptsn@yahoo.com.br" ))
+                 )
 )
 
 
@@ -392,9 +392,9 @@ tabPanel("Dados",
 
 # Server code
 server <- function(input, output) {
-
   
-#####################################
+  
+  #####################################
   outVarrB <- reactive({
     df11 %>%
       filter(countriesAndTerritories %in% input$Alll) %>%
@@ -420,11 +420,11 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'h',y = 100, x = 0))
   })
-#####################################  
+  #####################################  
   
   
   
-
+  
   
   
   outVarr <- reactive({
@@ -442,7 +442,7 @@ server <- function(input, output) {
       arrange(Data) %>%
       droplevels()
   })
-
+  
   output$Total <- renderPlotly({
     plot_ly(data=outVarr(), x=~Data,  y = ~Quantidade,
             type = 'scatter', mode = 'lines', legendgroup = "1",
@@ -452,7 +452,7 @@ server <- function(input, output) {
                 color = ~countriesAndTerritories,colors = "viridis")  %>%
       layout(legend = list(orientation = 'h',y = 100, x = 0))
   })
-
+  
   
   
   
@@ -488,7 +488,7 @@ server <- function(input, output) {
   
   
   
-
+  
   
   outVar <- reactive({
     df1 %>%
@@ -592,12 +592,16 @@ server <- function(input, output) {
         'color': '#fff'
         }); 
         }")
-
+      
     ))
   })
   
-
+  
   
 }
 
+
+
+
 shinyApp(ui = ui, server = server)
+
