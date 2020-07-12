@@ -44,14 +44,14 @@ load("dados.rda")
 
 my_data$municipio = my_data$city
 my_data$estado = my_data$state
-my_data$data2 = as.Date(my_data$date)
+my_data$data2 = as.Date(my_data$date, format="%Y-%m-%d")
 my_data$casosAcumulado = my_data$last_available_confirmed
 my_data$obitosAcumulado = my_data$last_available_deaths
 
 cidade <- my_data %>%
   select(municipio,data2,casosAcumulado,obitosAcumulado,estado) %>%
   group_by(estado,municipio,data2) %>%
-ungroup()
+  ungroup()
 my_data=0
 cidade = cidade %>% drop_na()
 
@@ -138,9 +138,9 @@ df22=df1
 
 
 #####################################################################################
-#Tabela Mundo
+#Tabela Mundo countriesAndTerritories,cases,deaths,Quantidade,Mortalidade
 
-tabela = df1[,-c(1,2,3,4,8,9,14,15)]
+tabela = df1[,-c(1,2,3,4,8,9,10,11,12,13,15,16)]
 tabela$Mortalidade = df2$deaths
 tabela$Locais = tabela$countriesAndTerritories
 
@@ -166,11 +166,11 @@ df111=  df111 %>%
   select(countriesAndTerritories,cases,deaths,Data) %>%
   group_by(countriesAndTerritories) %>%
   mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
-  
+
 df222=  df222 %>%
-    select(countriesAndTerritories,cases,deaths,Data) %>%
-    group_by(countriesAndTerritories) %>%
-    mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
+  select(countriesAndTerritories,cases,deaths,Data) %>%
+  group_by(countriesAndTerritories) %>%
+  mutate(cases = rev(cumsum(rev(cases))),deaths = rev(cumsum(rev(deaths))),Data=Data)
 
 df111$Quantidade=df111$cases
 
@@ -179,7 +179,7 @@ df222=ungroup(df222)
 
 ##############################################################################################
 #removendo 6 primeiros dias para fazer media movel de 7 dias
-hplm=aggregate(Data ~ countriesAndTerritories, df22, function(x) order(unique(x)))
+hplm=aggregate(Data ~ countriesAndTerritories, df22, function(x){order(unique(x))})
 ffffddff=unlist(hplm$Data)
 
 
