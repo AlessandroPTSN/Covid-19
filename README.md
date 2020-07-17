@@ -12,6 +12,6 @@ http://shiny.estatistica.ccet.ufrn.br
 
 http://shiny.estatistica.ccet.ufrn.br/Covid-19/
 
-![1](https://user-images.githubusercontent.com/50224653/83344102-0c870680-a2d9-11ea-9ddc-3c67745fcbc8.PNG)
+![site](https://user-images.githubusercontent.com/50224653/87813698-cbbb6080-c838-11ea-949b-8a56a42473bf.PNG)
 
 
