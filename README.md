@@ -4,6 +4,10 @@ Código usado para criar meu primeiro shiny-app
 COVID-19 é uma doença infeciosa causada pelo coronavírus, seus principais sintomas são febre, tosse seca e cansaço.
 O app tem como objetivo mostrar as pessoas o avanço do Covid-19 ao decorrer dos dias, através de tabelas e gráficos interativos suportados pelo Shiny, um dos vários pacotes do R
 
+Versão funcional dos dados globais: 
+https://alessandropereira.shinyapps.io/Covid_Update/
+
+Versão completa do site: 
 https://alessandropereira.shinyapps.io/Covid-19/
 
 Também disponível em:
